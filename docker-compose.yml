@@ -1,0 +1,49 @@
+version: '3.8'
+
+services:
+  db:
+    image: postgres:13-alpine
+    container_name: poker_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - ./backend/src/db_init/init.sql:/docker-entrypoint-initdb.d/init.sql
+    environment:
+      - POSTGRES_USER=poker
+      - POSTGRES_PASSWORD=poker
+      - POSTGRES_DB=poker
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U poker -d poker"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build: ./backend
+    container_name: poker_backend
+    ports:
+      - "8000:8000"
+    environment:
+      - DB_HOST=db
+      # REFACTOR: Provide the allowed origins to the backend via an environment variable.
+      - CORS_ORIGINS=http://localhost:3000,http://127.0.0.1:3000
+    depends_on:
+      db:
+        condition: service_healthy
+
+  frontend:
+    build:
+      context: ./frontend
+      # REFACTOR: Pass the API URL as a build argument for better portability.
+      args:
+        - NEXT_PUBLIC_API_URL=http://localhost:8000
+    container_name: poker_frontend
+    ports:
+      - "3000:3000"
+    # The environment variable is now set inside the Dockerfile during the build.
+    depends_on:
+      - backend
+
+volumes:
+  postgres_data:

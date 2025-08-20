@@ -1,0 +1,13 @@
+# Node / Next.js
+frontend/node_modules
+frontend/.next
+frontend/npm-debug.log*
+
+# Python / Poetry
+backend/.venv
+backend/__pycache__
+backend/.pytest_cache
+backend/*.egg-info
+
+# OS-specific
+.DS_Store

@@ -1,0 +1,5 @@
+CREATE TABLE IF NOT EXISTS hands (
+    id UUID PRIMARY KEY,
+    created_at TIMESTAMPTZ NOT NULL,
+    hand_data JSONB NOT NULL
+);
